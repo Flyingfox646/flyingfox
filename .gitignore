@@ -23,3 +23,5 @@
 /wheelhouse/yappi-0.94-cp35-none-win32.whl
 /run/db_backup.cmd
 /src/conf.local.ini
+src/conf.ini
+.vs/il2_stats/v14/.suo
