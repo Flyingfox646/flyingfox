@@ -2507,7 +2507,7 @@ msgstr "по точности стрельбы"
 msgid "on the score"
 msgstr "по очкам"
 
-#: .\stats\templates\missions.html:19
+#: .\stats\templates\missions.html:19cmd
 msgid "Search mission"
 msgstr "Найти миссию"
 
@@ -2523,11 +2523,14 @@ msgstr "Пилотов на сервере"
 
 #: .\stats\templates\online.html:21
 msgid "Allied Pilots"
-msgstr "Пилоты Союзников"
+msgstr "Красные"
 
 #: .\stats\templates\online.html:36
 msgid "Axis Pilots"
-msgstr "Пилоты Стран Оси"
+msgstr "Синие"
+
+msgid "Duel Pilots"
+msgstr "Дуэлянты"
 
 #: .\stats\templates\pilot.html:23 .\stats\templates\pilot.html:28
 #: .\stats\templates\pilot.html:33 .\stats\templates\squad.html:20

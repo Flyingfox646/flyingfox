@@ -1182,7 +1182,10 @@ section#main .wrapper .general_block .top_pilots .top_table .head_row .cell:firs
 }
 section#main .wrapper .general_block .top_pilots .top_table .head_row .cell:last-child {
   padding-right: 30px;
-  text-align: right;
+  text-align: left;
+}
+section #main .wrapper .general_block .top_pilots .top_table .header:after {
+  background-color: #3166CE;
 }
 section#main .wrapper .general_block .top_pilots .top_table a.row {
   display: table-row;
@@ -1209,7 +1212,7 @@ section#main .wrapper .general_block .top_pilots .top_table a.row .cell:first-ch
 }
 section#main .wrapper .general_block .top_pilots .top_table a.row .cell:last-child {
   padding-right: 30px;
-  text-align: right;
+  text-align: left;
 }
 section#main .wrapper .general_block .full_rating {
   background-color: #353535;
@@ -1396,6 +1399,67 @@ section#main .wrapper .additional_block .active_players .bar_mini .bar_blue_num 
   font-size: 16px;
   color: #5C5C5C;
   float: right;
+  text-align: right;
+}
+section#main .wrapper .additional_block .top_pilots {
+  position: relative;
+  display: inline-block;
+  margin: 15px 0;
+  padding: 15px 0px 0px 00px;
+  background-color: #353535;
+  width: 370px;
+}
+section#main .wrapper .additional_block .top_pilots .top_title {
+  font-size: 15px;
+  padding: 0 30px;
+  margin-bottom: 10px;
+}
+section#main .wrapper .additional_block .top_pilots .top_table {
+  display: table;
+  width: 100%;
+}
+section#main .wrapper .additional_block .top_pilots .top_table .head_row {
+  display: table-row;
+  height: 24px;
+}
+section#main .wrapper .additional_block .top_pilots .top_table .head_row .cell {
+  display: table-cell;
+  color: #5C5C5C;
+  font-size: 12px;
+  vertical-align: middle;
+}
+section#main .wrapper .additional_block .top_pilots .top_table .head_row .cell:first-child {
+  padding-left: 30px;
+}
+section#main .wrapper .additional_block .top_pilots .top_table .head_row .cell:last-child {
+  padding-right: 30px;
+  text-align: right;
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row {
+  display: table-row;
+  height: 32px;
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row:hover {
+  transition: 500ms;
+  background: rgba(150, 150, 150, 0.3);
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row .cell {
+  display: table-cell;
+  color: #888888;
+  font-size: 14px;
+  border-top: 1px solid #303030;
+  vertical-align: middle;
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row .cell.img {
+  font-size: 0;
+  vertical-align: middle;
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row .cell:first-child {
+  padding-left: 30px;
+  color: #5C5C5C;
+}
+section#main .wrapper .additional_block .top_pilots .top_table a.row .cell:last-child {
+  padding-right: 30px;
   text-align: right;
 }
 section#main .wrapper .additional_block .online_widget {
@@ -2088,11 +2152,8 @@ section#my_squad .wrapper .members_table .row .cell.red:hover {
   text-align: center;
   padding-right: 12px;
 }
-.online_players {
-  margin-top: 40px;
-}
 .online_players .header {
-  font-size: 30px;
+  font-size: 15px;
 }
 .online_players .header:after {
   content: " ";
@@ -2100,22 +2161,29 @@ section#my_squad .wrapper .members_table .row .cell.red:hover {
   background-color: #CF2D1C;
   width: 100%;
   height: 10px;
+  margin-top: 3px;
   margin-bottom: 3px;
 }
 .online_players .content_table .cell {
   text-align: left;
+  font-size: 14px;
+  color: #888888;
   padding-left: 20px;
 }
 .online_allies,
 .online_axis {
   display: inline-block;
-  width: 49%;
-}
-.online_axis {
-  float: right;
+  width: 32%;
 }
 .online_axis .header:after {
   background-color: #3166CE;
+}
+.online_duel {
+  display: inline-block;
+  width: 32%;
+}
+.online_duel .header:after {
+  background-color: #C8C8C8;
 }
 footer {
   width: 100%;

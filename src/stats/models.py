@@ -1203,6 +1203,7 @@ class PlayerOnline(models.Model):
     coalition = models.IntegerField(choices=COALITIONS)
     profile = models.ForeignKey(Profile, blank=True, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now=True, db_index=True)
+    is_duel = models.BooleanField(default=False, editable=True)
 
     class Meta:
         db_table = 'online'
