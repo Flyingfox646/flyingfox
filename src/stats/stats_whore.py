@@ -486,8 +486,9 @@ def create_new_sortie(mission, profile, player, sortie, sortie_aircraft_id):
                 # френдов не считаем
                 if sortie.coal_id == target.coal_id:
                     continue
-                ak_assist += 1
-                score += mission.score_dict['ak_assist']
+                if (sortie.sortie_status.is_crashed or sortie.sortie_status.is_ditched or sortie.sortie_status.is_landed) and not sortie.bot_status.is_dead and not sortie.is_bailout:
+                    ak_assist += 1
+                    score += mission.score_dict['ak_assist']
 
     new_sortie = Sortie(
         profile=profile,
