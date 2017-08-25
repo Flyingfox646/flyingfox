@@ -1,5 +1,4 @@
 from collections import defaultdict
-
 from datetime import datetime, timedelta
 import operator
 from pathlib import Path
@@ -210,7 +209,6 @@ def stats_whore(m_report_file):
 
         new_sortie = create_new_sortie(mission=mission, sortie=sortie, profile=profile, player=player,
                                        sortie_aircraft_id=sortie_aircraft_id)
-
         update_fairplay(new_sortie=new_sortie)
         update_bonus_score(new_sortie=new_sortie)
 
@@ -438,8 +436,6 @@ def create_new_sortie(mission, profile, player, sortie, sortie_aircraft_id):
     if SORTIE_MIN_TIME:
         if (sortie_tik_last // 50) - (sortie.tik_spawn // 50) < SORTIE_MIN_TIME:
             is_ignored = True
-    if sortie.pos_start['z'] > 290000:
-        is_ignored = True
 
     killboard_pvp = defaultdict(int)
     killboard_pve = defaultdict(int)
@@ -456,19 +452,18 @@ def create_new_sortie(mission, profile, player, sortie, sortie_aircraft_id):
             is_friendly = sortie.coal_id == target.coal_id
 
             if not is_friendly:
-                if (sortie.sortie_status.is_crashed or sortie.sortie_status.is_ditched or sortie.sortie_status.is_landed) and not sortie.bot_status.is_dead and not sortie.is_bailout:
-                    score += mission.score_dict[target.cls]
-                    if target.cls_base == 'aircraft':
-                        ak_total += 1
-                    elif target.cls_base in ('block', 'vehicle', 'tank'):
-                        gk_total += 1
-                    if target.sortie:
-                        killboard_pvp[target.cls] += 1
-                        # if sortie.cls_base == 'aircraft' and target.sortie.cls_base == 'aircraft':
-                        #     opponent = players_pilots[target.sortie.account_id]
-                        #     player_targets.append(opponent)
-                    else:
-                        killboard_pve[target.cls] += 1
+                score += mission.score_dict[target.cls]
+                if target.cls_base == 'aircraft':
+                    ak_total += 1
+                elif target.cls_base in ('block', 'vehicle', 'tank'):
+                    gk_total += 1
+                if target.sortie:
+                    killboard_pvp[target.cls] += 1
+                    # if sortie.cls_base == 'aircraft' and target.sortie.cls_base == 'aircraft':
+                    #     opponent = players_pilots[target.sortie.account_id]
+                    #     player_targets.append(opponent)
+                else:
+                    killboard_pve[target.cls] += 1
             else:
                 cls_name = 'f_%s' % target.cls
                 if target.cls_base == 'aircraft':

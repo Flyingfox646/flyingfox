@@ -277,10 +277,19 @@ def mission(request, mission_id):
 def main(request):
     if request.tour.is_ended:
         return tour(request)
+    missions_wins = request.tour.missions_wins()
+    missions_wins_total = sum(missions_wins.values())
+
+    summary_total = request.tour.stats_summary_total()
+    summary_coal = request.tour.stats_summary_coal()
+
+    top_streak = (Player.players.pilots(tour_id=request.tour.id)
+                  .exclude(score_streak_current=0)
+                  .active(tour=request.tour).order_by('-score_streak_current')[:10])
 
     top_24_score = (Sortie.objects
                     .filter(tour_id=request.tour.id, is_disco=False, player__type='pilot')
-                    #.filter(date_start__gt=timezone.now()-timedelta(hours=24))
+                    .filter(date_start__gt=timezone.now()-timedelta(hours=24))
                     .exclude(score=0)
                     .values('player')
                     .annotate(sum_score=Sum('score'))
@@ -295,25 +304,35 @@ def main(request):
     coal_active_players = request.tour.coal_active_players()
     total_active_players = sum(coal_active_players.values())
 
-    players_allies = PlayerOnline.objects.filter(coalition=Coalition.Allies, is_duel=False).order_by('nickname')
-    players_axis = PlayerOnline.objects.filter(coalition=Coalition.Axis, is_duel=False).order_by('nickname')
-    players_duel = PlayerOnline.objects.filter(is_duel=True).order_by('nickname')
+    try:
+        previous_tour = Tour.objects.exclude(id=request.tour.id).order_by('-id')[0]
+    except IndexError:
+        previous_tour = None
+    if previous_tour:
+        previous_tour_top = (Player.players.pilots(tour_id=previous_tour.id)
+                             .active(tour=previous_tour).order_by('-rating')[:20])
+    else:
+        previous_tour_top = None
 
-    total_allies = len(players_allies)
-    total_axis = len(players_axis)
-    total_duel = len(players_duel)
+    allies_online = PlayerOnline.objects.filter(coalition=Coalition.Allies).count()
+    axis_online = PlayerOnline.objects.filter(coalition=Coalition.Axis).count()
+    total_online = allies_online + axis_online
 
     return render(request, 'main.html', {
         'tour': request.tour,
+        'missions_wins': missions_wins,
+        'missions_wins_total': missions_wins_total,
+        'summary_total': summary_total,
+        'summary_coal': summary_coal,
+        'top_streak': top_streak,
         'top_24': top_24,
         'coal_active_players': coal_active_players,
         'total_active_players': total_active_players,
-        'players_allies': players_allies,
-        'players_axis': players_axis,
-        'players_duel': players_duel,
-        'total_allies': total_allies,
-        'total_axis': total_axis,
-        'total_duel': total_duel,
+        'previous_tour': previous_tour,
+        'previous_tour_top': previous_tour_top,
+        'total_online': total_online,
+        'allies_online': allies_online,
+        'axis_online': axis_online,
     })
 
 
@@ -346,6 +365,7 @@ def tour(request):
         'coal_active_players': coal_active_players,
         'total_active_players': total_active_players,
     })
+
 
 def online(request):
     players_allies = PlayerOnline.objects.filter(coalition=Coalition.Allies).order_by('nickname')

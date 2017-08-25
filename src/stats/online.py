@@ -29,10 +29,6 @@ def update_online(m_report_files, online_timestamp):
                     atype_id = data.pop('atype_id')
 
                     if atype_id == 10:
-                        is_duel = False
-                        if data['pos']['z'] > 290000:
-                            is_duel = True
-
                         try:
                             profile = Profile.objects.get(uuid=data['account_id'])
                         except Profile.DoesNotExist:
@@ -41,7 +37,6 @@ def update_online(m_report_files, online_timestamp):
                             'nickname': data['name'],
                             'coalition': _countries[data['country_id']],
                             'profile': profile,
-                            'is_duel': is_duel
                         })
                     elif atype_id == 21:
                         PlayerOnline.objects.filter(uuid=data['account_id']).delete()
