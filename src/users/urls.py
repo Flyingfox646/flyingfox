@@ -4,7 +4,6 @@ from django.views.generic import RedirectView
 from . import views
 
 
-app_name = 'users'
 urlpatterns = [
     url(r'^login/$', views.login, name='login'),
     url(r'^logout/$', views.logout, name='logout'),

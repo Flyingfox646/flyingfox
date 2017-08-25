@@ -36,8 +36,7 @@ INTERNAL_IPS = ()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_FILE = BASE_DIR.joinpath('SECRET_KEY')
 try:
-    with SECRET_FILE.open() as f:
-        SECRET_KEY = f.read()
+    SECRET_KEY = SECRET_FILE.open().read()
 except IOError:
     import string
     from django.utils.crypto import get_random_string
@@ -99,7 +98,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # 'DIRS': [],
         'DIRS': [str(BASE_DIR.joinpath('custom', 'templates'))],
-        'APP_DIRS': True,
+        # 'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
@@ -115,10 +114,12 @@ TEMPLATES = [
                 'core.context_processors.version',
                 'stats.context_processors.tours',
             ],
-            # 'loaders': [
-            #     'django.template.loaders.filesystem.Loader',
-            #     'django.template.loaders.app_directories.Loader',
-            # ],
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
+            ],
         },
     },
 ]
@@ -152,7 +153,6 @@ LANGUAGES = (
     ('ru', _('Russian')),
     ('de', _('German')),
     ('fr', _('French')),
-    ('es', _('Spanish')),
 )
 
 TIME_ZONE = 'UTC'
@@ -162,7 +162,6 @@ TIME_ZONES = {
     'ru': 'Europe/Moscow',
     'de': 'Europe/Berlin',
     'fr': 'Europe/Paris',
-    'es': 'Europe/Madrid',
 }
 
 USE_I18N = True
@@ -333,7 +332,7 @@ MISSION_REPORT_BACKUP_PATH = MISSION_REPORT_PATH.joinpath('mission_report_backup
 # 0 - disable
 INACTIVE_PLAYER_DAYS = 7
 
-SQUAD_MEMBERS_MINIMUM = 4
+SQUAD_MEMBERS_MINIMUM = 3
 
 ACCOUNT_ACTIVATION_DAYS = 1
 

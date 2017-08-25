@@ -2472,39 +2472,42 @@ msgstr ""
 
 #: .\stats\templates\mission.html:124 .\stats\templates\pilots.html:127
 #: .\stats\templates\squads.html:107
-msgid "on the number of air kills"
+msgid "by number of air kills"
 msgstr "по количеству сбитых"
 
 #: .\stats\templates\mission.html:125 .\stats\templates\pilots.html:128
-msgid "on the current streak of kills"
+msgid "by current streak of kills"
 msgstr "по текущему стрику"
 
 #: .\stats\templates\mission.html:126 .\stats\templates\pilots.html:129
 #: .\stats\templates\squads.html:108
-msgid "on the number of ground kills"
+msgid "by number of ground kills"
 msgstr "по количеству уничтоженных наземных целей"
 
 #: .\stats\templates\mission.html:127 .\stats\templates\pilots.html:130
 #: .\stats\templates\squads.html:109
-msgid "on the flight time (hours:minutes)"
+msgid "by flight time (hours:minutes)"
 msgstr "по налету (часы:минуты)"
 
 #: .\stats\templates\mission.html:128 .\stats\templates\pilots.html:131
 #: .\stats\templates\squads.html:110
-msgid "on the average number of kill per one death (K/D)"
+msgid "by average number of kill per death (K/D)"
 msgstr "по среднему количеству сбитых на одну смерть (K/D)"
 
 #: .\stats\templates\mission.html:129 .\stats\templates\pilots.html:132
 #: .\stats\templates\squads.html:111
-msgid "on the average number of kill per one hour (K/Hr)"
+msgid "by average number of kill per hour (K/Hr)"
 msgstr "по среднему количеству сбитых в час (K/Hr)"
 
 #: .\stats\templates\mission.html:130 .\stats\templates\pilots.html:133
-msgid "on the accuracy"
+msgid "by accuracy"
 msgstr "по точности стрельбы"
 
+msgid "by rating"
+msgstr "по рейтингу"
+
 #: .\stats\templates\mission.html:132
-msgid "on the score"
+msgid "by score"
 msgstr "по очкам"
 
 #: .\stats\templates\missions.html:19
@@ -2587,7 +2590,7 @@ msgid "Flight Time"
 msgstr "Налет"
 
 #: .\stats\templates\pilot.html:103 .\stats\templates\squad.html:76
-msgid "Position in Rating"
+msgid "Ranking"
 msgstr "Позиция в рейтинге"
 
 #: .\stats\templates\pilot.html:116 .\stats\templates\squad.html:89
@@ -2648,7 +2651,7 @@ msgstr "ИИ"
 #: .\stats\templates\squad.html:154
 msgctxt "total"
 msgid "Assisted"
-msgstr "Ассистов"
+msgstr "В группе"
 
 #: .\stats\templates\pilot.html:187 .\stats\templates\pilot_sortie.html:279
 #: .\stats\templates\squad.html:160
@@ -2982,6 +2985,10 @@ msgstr "Погиб"
 msgctxt "sortie_status"
 msgid "Captured"
 msgstr "Попал в плен"
+
+msgctxt "sortie_status"
+msgid "Avoided captivity"
+msgstr "Избежал плена"
 
 #: .\stats\templates\pilot_sortie.html:31
 #: .\stats\templates\pilot_sortie.html:32
@@ -3629,3 +3636,91 @@ msgstr "Профиль успешно обновлен."
 #~ msgctxt "aircraft_payload"
 #~ msgid "FAB-500M"
 #~ msgstr "ФАБ-500М"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\templates\pilots.html:75
+msgid "Rank"
+msgstr "Звание"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:502
+msgctxt "1"
+msgid "Sergeant"
+msgstr "Сержант"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:503
+msgctxt "1"
+msgid "Snr. Sergeant"
+msgstr "Ст. Сержант"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:504
+msgctxt "1"
+msgid "Sergeant Maj."
+msgstr "Старшина"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:505
+msgctxt "1"
+msgid "Jnr. Lieutenant"
+msgstr "Мл. Лейтенант"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:506
+msgctxt "1"
+msgid "Lieutenant"
+msgstr "Лейтенант"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:507
+msgctxt "1"
+msgid "Snr. Lieutenant"
+msgstr "Ст. Лейтенант"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:508
+msgctxt "1"
+msgid "Captain"
+msgstr "Капитан"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:509
+msgctxt "1"
+msgid "Major"
+msgstr "Майор"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:510
+msgctxt "1"
+msgid "Lt. Colonel"
+msgstr "Подполковник"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:511
+#: .\stats\views.py:24
+msgctxt "1"
+msgid "Colonel"
+msgstr "Полковник"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\models.py:512
+msgctxt "1"
+msgid "Maj. General"
+msgstr "Генерал-майор"
+
+#: .\stats\templates\pilots.html:87
+msgid "Hero of the Soviet Union"
+msgstr "Герой Советского Союза"
+
+#: .\stats\templates\pilots.html:91
+msgid "Knight&#39s Cross"
+msgstr "Рыцарский Крест"
+
+#: .\stats\templates\current_mission.html:6
+msgid "current mission"
+msgstr "текущая миссия"
+
+#: .\stats\templates\current_mission.html:12
+msgid "duration"
+msgstr "время с начала"

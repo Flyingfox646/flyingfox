@@ -19,10 +19,10 @@
                 <div class="pilot_awards">
                 {% for reward in rewards %}
                     <div class="award">
+                        <img src="{{ reward.award.img.url }}" alt="" title="{{ reward.award.desc }}" width="180">
                         <div class="title">
                             {{ reward.award.title }}
                         </div>
-                        <img src="{{ reward.award.img.url }}" alt="" title="{{ reward.award.desc }}" width="180" height="180">
                     </div>
                 {% endfor %}
                 </div>

@@ -38,7 +38,16 @@
                 <div class="head_right">
                     {% if squad.profile.logo %}
                     <div class="squad_logo">
+                        {% if award %}
+                        <img src="{{ award.img.url }}" align="left" alt="" title="{{ award.desc }}">
+                        <img src="{{ squad.profile.logo.url }}" align="right" alt="" title="" width="200">
+                        {% else %}
                         <img src="{{ squad.profile.logo.url }}?{{ squad.profile.logo.size }}" align="right" alt="" title="">
+                        {% endif %} 
+                    </div>
+                    {% elif award %}
+                    <div class="squad_logo">
+                        <img src="{{ award.img.url }}" alt="" title="{{ award.desc }}">
                     </div>
                     {% endif %}
                 </div>
@@ -50,6 +59,12 @@
                     <div class="cell" style="width: 60px;"></div>
                     <div class="cell"></div>
                     <div class="cell" style="width: 60px;"></div>
+                    <div class="cell" style="width: 90px;">
+                        <a class="sort_by" href="?sort_by=-rank">
+                            <img src="{% static 'img/icons/small/rank.png' %}" width="18" height="18"
+                                 alt="{% trans 'Rank' %}" title="{% trans 'Rank' %}">
+                        </a>
+                    </div>
                     <div class="cell" style="width: 90px;">
                         <a class="sort_by" href="?sort_by=-ak_total">
                             <img src="{% static 'img/icons/small/ak.png' %}" width="18" height="18"
@@ -106,6 +121,13 @@
                     <div class="cell img">
                         {% include 'inline/table_coal_pref_icon.html' with coal_pref=pilot.coal_pref %}
                     </div>
+                    <div class="cell">
+                        {% if pilot.get_rank_name %}
+                        <img src="{% static 'img/ranks/small/'|add:pilot.get_rank_image|add:'.png' %}" height="22"
+                             title="{% trans pilot.get_rank_name context pilot.coal_pref %}">
+
+                        {% endif %}
+                    </div>
                     <div class="cell">{{ pilot.ak_total }}</div>
                     <div class="cell">{{ pilot.streak_current }}</div>
                     <div class="cell">{{ pilot.gk_total }}</div>
@@ -133,7 +155,7 @@
     <script src="{% static 'js/table.js' %}"></script>
     <script>
         $(document).ready(function() {
-            uri_sort_by('-rating');
+            uri_sort_by('-rank');
         });
     </script>
 {% endblock bottom %}

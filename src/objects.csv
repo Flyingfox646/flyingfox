@@ -36,8 +36,8 @@ aircraft_gunner,BotGunner_He111H16rear,1,Aircraft gunner,стрелок
 aircraft_gunner,BotGunner_He111H16top,1,Aircraft gunner,стрелок
 aircraft_gunner,BotGunner_He111H16fwd,1,Aircraft gunner,стрелок
 aircraft_gunner,BotGunner_He111H16fwdM,1,Aircraft gunner,стрелок
+aircraft_gunner,BotGunner_He111H16rear,1,Aircraft gunner,стрелок
 aircraft_gunner,BotGunner_He111H16rearM,1,Aircraft gunner,стрелок
-aircraft_gunner,BotGunner_Il2m42,1,Aircraft gunner,стрелок
 aircraft_heavy,He 111 H-6,1,,
 aircraft_heavy,He 111 H-16,1,,
 aircraft_heavy,Ju 88 A-4,1,,
@@ -58,13 +58,11 @@ aircraft_light,MiG-3 ser.24,1,MiG-3 (series 24),МиГ-3 24-й серии
 aircraft_light,P-40E-1,1,P-40 E-1,
 aircraft_light,Yak-1 ser.69,1,Yak-1 (series 69),Як-1 69-й серии
 aircraft_light,Yak-1B ser.127,1,Yak-1B (series 127),Як-1б 127-й серии
-aircraft_light,Spitfire Mk.VB,1,,
 aircraft_medium,Bf 110 E-2,1,,
 aircraft_medium,Bf 110 G-2,1,,
 aircraft_medium,Il-2 mod.1941,1,IL-2 model 1941,Ил-2 модель 1941 года
 aircraft_medium,Il-2 mod.1942,1,IL-2 AM-38,Ил-2 AM-38
 aircraft_medium,Ju 87 D-3,1,,
-aircraft_medium,Il-2 mod.1943,1,IL-2 AM-38F,Ил-2 AM-38Ф
 aircraft_pilot,BotPilot,1,pilot,пилот
 aircraft_pilot,BotPilot_Bf109,1,pilot,пилот
 aircraft_pilot,BotPilot_FW190,1,pilot,пилот
@@ -135,7 +133,6 @@ aircraft_turret,Turret_Pe2s35_2,1,Pe-2 (series 35) turret,турель Пе-2 35
 aircraft_turret,Turret_Pe2s87_1,1,Pe-2 (series 87) turret,турель Пе-2 87-й серии
 aircraft_turret,Turret_Pe2s87_1M,1,Pe-2 (series 87) turret,турель Пе-2 87-й серии
 aircraft_turret,Turret_Pe2s87_2,1,Pe-2 (series 87) turret,турель Пе-2 87-й серии
-aircraft_turret,Turret_Il2m43,1,IL-2 AM-38F turret,турель Ил-2 АМ-38Ф
 airfield,arf_ammo_1,0,airfield ammo dump,аэродромный склад вооружения
 airfield,arf_ammo_2,0,airfield ammo dump,аэродромный склад вооружения
 airfield,arf_ammo_3,0,airfield ammo dump,аэродромный склад вооружения
@@ -211,8 +208,6 @@ bomb,BOMB_RUS_FAB500M,0,FAB-500M,ФАБ-500М
 bomb,BOMB_RUS_FAB500M_P40,0,FAB-500M,ФАБ-500М
 bomb,BOMB_RUS_FAB50sv,0,FAB-50sv,ФАБ-50св
 bomb,test_container,0,Container,Container
-bomb,CLUSTER_RUS_PTAB2515,0,PTAB,ПТАБ 
-bomb,CLUSTER_RUS_PTAB2515_HIT,0,PTAB,ПТАБ 
 bridge,bridge_big_1,0,railway bridge,ж/д мост
 bridge,bridge_big_2,0,railway bridge,ж/д мост
 bridge,bridge_pontoon_100,0,pontoon bridge,понтонный мост
@@ -290,33 +285,9 @@ bullet,SHELL_RUS_23x152_AP,0,,
 bullet,SHELL_RUS_23x152_HE,0,,
 bullet,SHELL_RUS_37x195_AP,0,,
 bullet,SHELL_RUS_37x195_HE,0,,
-bullet,NPC_SHELL_RUS_130_HE,0,,
-bullet,SHELL_RUS_76_naval_HE,0,,
-bullet,NPC_SHELL_RUS_122_HE,0,,
-bullet,BULLET_ENG_7-7x56_AP,0,,
-bullet,BULLET_USA_7-62x63_AP,0,,
 car,GAZ-M,0,GAZ-M car,автомобиль ГАЗ-М
 car,Horch 830,0,Horch 830 car,автомобиль Horch
 explosion,explosion,0,,
-explosion,tnt620g_frag400g_expl_ground,0,,
-explosion,tnt620g_frag400g_expl_object,0,,
-explosion,tnt620g_frag400g_expl_water,0,,
-explosion,tnt4kg_frag30kg_HE_expl_metal,0,,
-explosion,tnt4kg_frag30kg_HE_expl_ground,0,,
-explosion,tnt4kg_frag30kg_HE_expl_water,0,,
-explosion,tnt500g_frag6kg_HE_expl_metal,0,,
-explosion,tnt500g_frag6kg_HE_expl_ground,0,,
-explosion,tnt500g_frag6kg_HE_expl_water,0,,
-explosion,explPlaneAlongWtr,0,,
-explosion,explPlaneWtr,0,,
-explosion,tnt10g_frag120g_HE_expl_building,0,,
-explosion,tnt10g_frag120g_HE_expl_ground,0,,
-explosion,tnt10g_frag120g_HE_expl_water,0,,
-explosion,ExplosionPlaneAlongWtr,0,,
-explosion,ExplosionPlaneWtr,0,,
-explosion,tnt70g_frag260g_HE_expl_building,0,,
-explosion,tnt70g_frag260g_HE_expl_ground,0,,
-explosion,tnt70g_frag260g_HE_expl_water,0,,
 flare,FlareGreen,0,,
 flare,FlareRed,0,,
 flare,FlareWhite,0,,
@@ -387,10 +358,6 @@ shell,NPC_SHELL_GER_37x263_AP,0,,
 shell,NPC_SHELL_GER_37x263_HE,0,,
 shell,NPC_SHELL_RUS_25_AP,0,,
 shell,NPC_SHELL_RUS_25_HE,0,,
-shell,SHELL_ENG_20x110_HE,0,,
-shell,SHELL_ENG_20x110_AP,0,,
-shell,SHELL_GER_30x184_AP,0,,
-shell,SHELL_GER_30x184_HE,0,,
 ship,Gun Boat 1124 AAA,0,Gunboat 1124 AAA,Бронекатер 1124
 ship,Gun Boat 1124 MRLS,0,Gunboat 1124 MRLS,Бронекатер 1124 с РСЗО
 ship,Gun Ship type A,0,Gunboat,Вооружённый буксир
@@ -712,10 +679,6 @@ trash,EjectorController,0,,
 trash,ParatroopersCreator_Ju52,0,,
 trash,Ju523mg4e_P2,0,,
 trash,Ju523mg4e_P3,0,,
-trash,ClusterGroundEffect,0,,
-trash,ClusterWaterEffect,0,,
-trash,BotRangefinder,0,,
-trash,VehicleRangefinderTurretInputController0,0,,
 truck,Ford G917,0,Ford G917 truck,грузовик Ford
 truck,GAZ-AA,0,GAZ-AA truck,грузовик ГАЗ-АА
 truck,Opel Blitz,0,Opel Blitz truck,грузовик Opel Blitz
@@ -759,7 +722,6 @@ vehicle_turret,F-34 turret,0,F-34 gun,орудие Ф-34
 vehicle_turret,HowitzerTurret,0,turret,башня
 vehicle_turret,TurretRiffle,0,turret,башня
 vehicle_turret,VehicleTurret,0,turret,башня
-vehicle_turret,VehicleTorpedoTurret,0,turret,башня
 wagon,Wagon_AAPlatform,0,train platform,ж/д платформа
 wagon,Wagon_BoxB,0,train boxcar,ж/д вагон
 wagon,Wagon_BoxNB,0,train boxcar,ж/д вагон

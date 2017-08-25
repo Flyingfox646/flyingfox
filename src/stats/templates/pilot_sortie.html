@@ -78,7 +78,8 @@
                     {% else %}
                         <span class="status_green">{{ sortie.get_bot_status_display|capfirst }}</span>
                     {% endif %}
-                    {% if sortie.is_bailout %}({% trans 'Bailout' context 'sortie' %}){% endif %}
+                    {% if sortie.is_escaped %}({% trans 'Avoided captivity' context 'sortie_status' %})
+                    {% elif sortie.is_bailout %}({% trans 'Bailout' context 'sortie' %}){% endif %}
                     <br>
                     <div class="sortie_total">
                         {% trans 'Score' context 'sortie' %}: <span>{{ sortie.score }}</span><br>
@@ -576,17 +577,51 @@
                     </div>
                 {% endif %}
 
+                {% if sortie.is_bailout and not sortie.is_captured and not sortie.is_dead %}
+                    <div class="row">
+                        <div class="left">
+                            {% trans 'Bailout' context 'sortie' %}
+                        </div>
+                        <div class="right">
+                            <font color="#A5001D">- 50%</font>
+                        </div>
+                    </div>
+                {% elif sortie.is_ditched %}
+                    <div class="row">
+                        <div class="left">
+                            {% trans 'Landed not on Airfield' context 'sortie' %}
+                        </div>
+                        <div class="right">
+                            <font color="#A5001D">- 20%</font>
+                        </div>
+                    </div>
+                {% elif sortie.is_crashed and not sortie.is_captured and not sortie.is_dead %}
+                    <div class="row">
+                        <div class="left">
+                            {% trans 'Crashed' context 'sortie' %}
+                        </div>
+                        <div class="right">
+                            <font color="#A5001D">- 20%</font>
+                        </div>
+                    </div>
+                {% elif sortie.is_shotdown and not sortie.is_captured and not sortie.is_dead %}
+                    <div class="row">
+                        <div class="left">
+                            {% trans 'Shotdown' context 'sortie' %}
+                        </div>
+                        <div class="right">
+                            <font color="#A5001D">- 20%</font>
+                        </div>
+                    </div>
+                {% endif %}
+
                 {% if sortie.bonus.total %}
                     <div class="row">
                         <div class="left">
                             {% trans 'Bonuses' context 'total' %}
                         </div>
                         <div class="right">
-                            {{ sortie.score_dict.basic }}
-                            +
-                            <span class="bonus">{{ sortie.bonus.total }}%</span>
-                            =
-                            <span class="sum">{{ sortie.score }}</span>
+                            <span class="bonus">+ {{ sortie.bonus.total }}%</span>
                         </div>
                     </div>
 
@@ -612,6 +647,31 @@
                         </div>
                     {% endif %}
                 {% endif %}
+                    {% if sortie.is_dead %}
+                        <div class="row">
+                            <div class="left">
+                                {% trans 'Dead' context 'sortie_status' %}
+                            </div>
+                            <div class="right">
+                                {{ sortie.score_dict.basic }}
+                                &times;
+                                <font color="#A5001D">0</font>
+                                = 0
+                            </div>
+                        </div>
+                    {% elif sortie.is_captured %}
+                        <div class="row">
+                            <div class="left">
+                                {% trans 'Captured' context 'sortie_status' %}
+                            </div>
+                            <div class="right">
+                                {{ sortie.score_dict.basic }}
+                                &times;
+                                <font color="#A5001D">0</font>
+                                = 0
+                            </div>
+                        </div>
+                    {% endif %}
                     <div class="row">
                         <div class="left">
                             {% trans 'Fairplay Index' %}

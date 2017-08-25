@@ -38,7 +38,16 @@
                 <div class="head_right">
                     {% if squad.profile.logo %}
                     <div class="squad_logo">
+                        {% if award %}
+                        <img src="{{ award.img.url }}" align="left" alt="" title="{{ award.desc }}">
+                        <img src="{{ squad.profile.logo.url }}" align="right" alt="" title="" width="200">
+                        {% else %}
                         <img src="{{ squad.profile.logo.url }}?{{ squad.profile.logo.size }}" align="right" alt="" title="">
+                        {% endif %} 
+                    </div>
+                    {% elif award %}
+                    <div class="squad_logo">
+                        <img src="{{ award.img.url }}" alt="" title="{{ award.desc }}">
                     </div>
                     {% endif %}
                 </div>
@@ -73,7 +82,7 @@
                 </div>
                 <div class="item">
                     <img src="{% static 'img/icons/big/rating.png' %}" width="" height="" title="" alt="">
-                    <div class="text">{% trans 'Position in Rating' %}</div>
+                    <div class="text">{% trans 'Ranking' %}</div>
                     <div class="num" title="{{ squad.rating }}">
                         {% if rating_position %}
                             <a href="{% url 'stats:squads' %}?page={{ page_position }}&tour={{ squad.tour_id }}">{{ rating_position }}</a>

@@ -252,6 +252,9 @@
                 </div>
                 {% endif %}
 
+                <div id="current_mission">
+                   {% include "current_mission.html" %}
+                </div> 
 
                 {% if total_online %}
                 <div class="online_widget">
@@ -264,7 +267,6 @@
                     <div class="total_num">
                         {{ total_online }}
                     </div>
-
                     <div class="bar_mini" style="float: right;">
                         <div class="bar">
                             <div class="bar_grid" style="width: 50%;"></div>
@@ -287,7 +289,6 @@
                     <div class="clearfix"></div>
                 </div>
                 {% endif %}
-
 
             </div>
 
@@ -328,3 +329,14 @@
         </div>
     </section>
 {% endblock content %}
+
+{% block bottom %}
+    {{ block.super }}
+    <script>
+        function update_duration() {
+            $('#current_mission').load('current_mission');
+        }
+
+        setInterval(function(){update_duration()}, 60000);
+    </script>
+{% endblock bottom %}

@@ -1,16 +1,20 @@
 from calendar import monthrange
 import hashlib
+import operator
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import connection, models
-from django.db.models import Avg, Count, Sum
+from django.db.models import Avg, Count, Sum, Max
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from mission_report.constants import Coalition, Country
 from mission_report.statuses import BotLifeStatus, SortieStatus, LifeStatus
+
+from stuff.fields import CaseInsensitiveCharField
 
 from .aircraft_mods import get_aircraft_mods
 from .aircraft_payloads import get_aircraft_payload
@@ -117,7 +121,7 @@ class Object(models.Model):
     log_name = models.CharField(max_length=64, editable=False, unique=True)
     cls_base = models.CharField(choices=CLASSES_BASE, max_length=24, blank=True)
     cls = models.CharField(choices=CLASSES, max_length=24, blank=True)
-    score = models.ForeignKey(Score, on_delete=models.CASCADE)
+    score = models.ForeignKey(Score)
     is_playable = models.BooleanField(default=False, editable=False)
 
     class Meta:
@@ -236,9 +240,14 @@ class Tour(models.Model):
     def days_in_tour(self):
         return monthrange(self.date_start.year, self.date_start.month)[1]
 
+    # Крылья Онлайн: предыдущий тур
+    def get_prev_tour(self):
+        prev_tour = Tour.objects.exclude(id=self.id).order_by('-id')[0]
+        if prev_tour:
+            return prev_tour
 
 class Mission(models.Model):
-    tour = models.ForeignKey(Tour, related_name='missions', on_delete=models.CASCADE)
+    tour = models.ForeignKey(Tour, related_name='missions')
 
     name = models.CharField(max_length=256, blank=True, db_index=True)
     path = models.CharField(max_length=256, blank=True)
@@ -341,15 +350,36 @@ class Profile(models.Model):
         self.save()
 
 
+# Крылья Онлайн: звания
+class Rank(models.Model):
+    id = models.IntegerField(primary_key=True)
+
+    allied_rank = models.CharField(max_length=20)
+    axis_rank = models.CharField(max_length=20)
+
+    min_flight_hours = models.IntegerField()
+    min_rating = models.BigIntegerField()
+    min_rating_position = models.IntegerField()
+
+    class Meta:
+        ordering = ['id']
+        db_table = 'ranks'
+        verbose_name = _('ranks')
+        verbose_name_plural = _('ranks')
+
+    def __str__(self):
+        return self.id
+
+
 class Player(models.Model):
-    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.CASCADE)
+    tour = models.ForeignKey(Tour, related_name='+')
     PLAYER_TYPES = (
         ('pilot', 'pilot'),
         ('gunner', 'gunner'),
         ('tankman', 'tankman'),
     )
     type = models.CharField(choices=PLAYER_TYPES, max_length=8, default='pilot', db_index=True)
-    profile = models.ForeignKey(Profile, related_name='players', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, related_name='players')
     squad = models.ForeignKey('stats.Squad', related_name='players', blank=True, null=True, on_delete=models.SET_NULL)
 
     date_first_sortie = models.DateTimeField(null=True)
@@ -359,6 +389,7 @@ class Player(models.Model):
     score = models.BigIntegerField(default=0, db_index=True)
     rating = models.BigIntegerField(default=0, db_index=True)
     ratio = models.FloatField(default=1)
+    rank = models.ForeignKey(Rank, default=0)
 
     sorties_total = models.IntegerField(default=0)
     sorties_coal = ArrayField(models.IntegerField(default=0), default=default_coal_list)
@@ -464,7 +495,7 @@ class Player(models.Model):
                                             tour_id=self.tour_id)
         return url
 
-    def get_position_by_field(self, field='rating'):
+    def get_position_by_field(self, field='rank_id'):
         return get_position_by_field(player=self, field=field)
 
     @property
@@ -527,21 +558,165 @@ class Player(models.Model):
         if ratio:
             self.ratio = round(ratio, 2)
 
+    # Крылья Онлайн: coal_pref - 100% вылетов за сторону
     def update_coal_pref(self):
         if self.sorties_total:
             allies = round(self.sorties_coal[1] * 100 / self.sorties_total, 0)
-            if allies > 60:
+            axis = round(self.sorties_coal[2] * 100 / self.sorties_total, 0)
+            if allies == 100:
                 self.coal_pref = 1
-            elif allies < 40:
+            elif axis == 100:
                 self.coal_pref = 2
             else:
                 self.coal_pref = 0
+    
+    def get_rank_name(self):
+        if self.rank:
+            if self.coal_pref == Coalition.Allies:
+                return self.rank.allied_rank
+            elif self.coal_pref == Coalition.Axis:
+                return self.rank.axis_rank
+
+    def get_rank_image(self):
+        if self.rank:
+            return '{}/{}'.format(self.coal_pref, self.rank.id)
+
+    # Крылья Онлайн: присвоение звания
+    def calculate_rank(self):
+        if self.coal_pref > 0:
+            rank_id = Rank.objects.filter(min_flight_hours__lte=self.flight_time_hours,
+                                          min_rating__lte=self.rating,
+                                          min_rating_position__gt=self.get_position_by_field(field='rating')).aggregate(Max('id'))['id__max']
+
+            if rank_id == 11 and not self.is_general():
+                rank_id = rank_id - 1
+
+            return Rank.objects.filter(id=rank_id)[0]
+        else:
+            return Rank.objects.filter(id=0)[0]
+
+    # Крылья Онлайн: генералы
+    def is_general(self):
+        AIRCRAFT_TYPE = ['aircraft_heavy', 'aircraft_medium', 'aircraft_light']
+
+        sql_general = """select *
+                         from Players
+                         where rating = (select max(rating)
+                                         from (select pl.rating, pl.sorties_cls 
+                                               from Players pl
+                                                 join Profiles pr on pl.profile_id = pr.id
+                                               where pl.coal_pref = {coal_pref}
+                                                 and pl.tour_id = {tour}
+                                                 and pl.flight_time >= {min_flight_hours}
+                                                 and is_hide = false) as t
+                                         where cast(cast(t.sorties_cls::json->'{fav_aircraft_type}' as text) as int) >= cast(cast(t.sorties_cls::json->'{type0}' as text) as int)
+                                           and cast(cast(t.sorties_cls::json->'{fav_aircraft_type}' as text) as int) >= cast(cast(t.sorties_cls::json->'{type1}' as text) as int))"""
+
+        fav_aircraft_type = self.get_fav_aircraft_type()
+        types = AIRCRAFT_TYPE[:]
+        types.remove(fav_aircraft_type)
+
+        rank = Rank.objects.filter(id=11)[0]
+        try:
+            general = Player.objects.raw(sql_general.format(coal_pref=self.coal_pref,
+                                                            tour=self.tour_id,
+                                                            fav_aircraft_type=fav_aircraft_type,
+                                                            min_flight_hours=rank.min_flight_hours * 3600,
+                                                            type0=types[0],
+                                                            type1=types[1]))[0]
+            
+            return self.id == general.id
+        except IndexError:
+            return False
+
+    # Крылья Онлайн: пилот с лучшим стриком
+    def is_top_streak(self):
+        top_fighter = (Player.objects.filter(coal_pref=self.coal_pref, tour_id=self.tour.id).order_by('-streak_current')[0])
+        return top_fighter.streak_current == self.streak_current
+
+    # Крылья Онлайн: пилот с лучшим стриком по нц
+    def is_top_ground_streak(self):
+        top_bomber = (Player.objects.filter(coal_pref=self.coal_pref, tour_id=self.tour.id).order_by('-streak_ground_current')[0])
+        return top_bomber.streak_ground_current == self.streak_ground_current
+
+    # Крылья Онлайн: проверка существующего награждения с датой
+    def is_rewarded_date(self, func, sortie_date):
+        queryset_reward = Reward.objects.filter(player_id=self.id, award__func=func)
+        if queryset_reward:
+            reward = queryset_reward.get()
+            return sortie_date > reward.date
+
+    # Крылья Онлайн: проверка существующего награждения
+    def is_rewarded(self, func):
+        return Reward.objects.select_related('award').filter(player_id=self.id, award__func=func).count() > 0
+
+    # Крылья Онлайн: офицеры от лейтенанта включительно
+    def is_officer(self):
+        return self.rank.id >= 5
+
+    # Крылья Онлайн: количество боевых вылетов
+    def get_combat_sorties(self):
+        sorties = (Sortie.objects
+                   .filter(player_id=self.id, score__gt=0).count())
+        return sorties
+
+    # Крылья Онлайн: количество закрытых карт
+    def get_successful_missions(self):
+        missions = (PlayerMission.objects
+                    .select_related('mission')
+                    .filter(player_id=self.id, score__gt=0, mission__winning_coalition=self.coal_pref).count())
+        return missions
+
+    # Крылья Онлайн: проверка существующего награждения
+    def get_rating_reward_count(self, func):
+        return Reward.objects.filter(award__func=func, date__gt=self.tour.date_start).count()
+
+    # Крылья Онлайн: предпочетаемый тип самолета
+    def get_fav_aircraft_type(self):        
+        return max(self.sorties_cls.items(), key=operator.itemgetter(1))[0]
+
+    # Крылья Онлайн: удаление награды игрока
+    def delete_reward(self, func):
+        Reward.objects.filter(player_id=self.id, award__func=func).delete()
+
+    # Крылья Онлайн: удаление рейтинговой награды
+    def delete_rating_reward(self, func):
+        Reward.objects.filter(award__func=func, date__gt=self.tour.date_start).delete()
+
+    # Крылья Онлайн: изменение награды
+    def update_reward(self, func_old, func_new):
+        award = Award.objects.get(func=func_new)
+        if award:
+            Reward.objects.filter(player_id=self.id, award__func=func_old).update(award_id=award.id)
+
+    # Крылья Онлайн: изменение рейтинговой награды
+    def update_rating_reward(self, func_old, func_new):
+        award = Award.objects.get(func=func_new)
+        if award:
+            Reward.objects.filter(award__func=func_old).update(award_id=award.id)
+
+    # Крылья Онлайн: игрок предыдущего тура
+    def get_prev_player(self):
+        profile_id = self.profile.id
+        prev_tour = self.tour.get_prev_tour()
+        if profile_id and prev_tour:
+            queryset_prev_player = Player.objects.filter(type='pilot', tour_id=prev_tour.id, profile_id=profile_id)
+            if queryset_prev_player:
+                return queryset_prev_player.get()
+    
+    # Крылья Онлайн: ГСС
+    def is_hero(self):
+        return self.is_rewarded('gold_star')
+
+    # Крылья Онлайн: Рыцарский крест
+    def is_knight(self):
+        return self.is_rewarded('knights_cross') or self.is_rewarded('knights_cross_leaves') or self.is_rewarded('knights_cross_leaves_swords') or self.is_rewarded('knights_cross_leaves_swords_diamonds') or self.is_rewarded('knights_cross_leaves_swords_diamonds_gold') or self.is_rewarded('knights_cross_leaves_swords_diamonds_gold_ground')
 
 
 class PlayerMission(models.Model):
-    profile = models.ForeignKey(Profile, related_name='+', on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, related_name='+', on_delete=models.CASCADE)
-    mission = models.ForeignKey(Mission, related_name='+', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, related_name='+')
+    player = models.ForeignKey(Player, related_name='+')
+    mission = models.ForeignKey(Mission, related_name='+')
 
     score = models.IntegerField(default=0, db_index=True)
     ratio = models.FloatField(default=1)
@@ -653,20 +828,28 @@ class PlayerMission(models.Model):
         if ratio:
             self.ratio = round(ratio, 2)
 
+    # Крылья Онлайн: coal_pref - 100% вылетов за сторону
     def update_coal_pref(self):
         if self.sorties_total:
             allies = round(self.sorties_coal[1] * 100 / self.sorties_total, 0)
-            if allies > 60:
+            axis = round(self.sorties_coal[2] * 100 / self.sorties_total, 0)
+            if allies == 100:
                 self.coal_pref = 1
-            elif allies < 40:
+            elif axis == 100:
                 self.coal_pref = 2
             else:
                 self.coal_pref = 0
 
+    # Крылья Онлайн: количество боевых вылетов в миссии
+    def get_mission_combat_sorties(self):
+        sorties = (Sortie.objects
+                   .filter(player_id=self.player.id, mission_id=self.mission.id, score__gt=0).count())
+        return sorties
+
 
 class PlayerAircraft(models.Model):
-    profile = models.ForeignKey(Profile, related_name='+', on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, related_name='+', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, related_name='+')
+    player = models.ForeignKey(Player, related_name='+')
     aircraft = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
 
     score = models.IntegerField(default=0)
@@ -764,10 +947,10 @@ class PlayerAircraft(models.Model):
 
 
 class Sortie(models.Model):
-    profile = models.ForeignKey(Profile, related_name='+', on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, related_name='sorties_list', on_delete=models.CASCADE)
-    tour = models.ForeignKey(Tour, related_name='sorties', on_delete=models.CASCADE)
-    mission = models.ForeignKey(Mission, related_name='sorties_list', on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, related_name='+')
+    player = models.ForeignKey(Player, related_name='sorties_list')
+    tour = models.ForeignKey(Tour, related_name='sorties')
+    mission = models.ForeignKey(Mission, related_name='sorties_list')
 
     nickname = models.CharField(max_length=128)
 
@@ -840,6 +1023,7 @@ class Sortie(models.Model):
     is_airstart = models.BooleanField(default=False)
     is_bailout = models.BooleanField(default=False)
     is_captured = models.BooleanField(default=False)
+    is_escaped = models.BooleanField(default=False)
     is_disco = models.BooleanField(default=False)
 
     ratio = models.FloatField(default=1)
@@ -920,6 +1104,14 @@ class Sortie(models.Model):
         aircraft_transport = self.killboard_pve.get('aircraft_transport', 0)
         return aircraft_light + aircraft_medium + aircraft_heavy + aircraft_transport
 
+    # Крылья Онлайн: уничтоженные танки
+    @property
+    def tanks_total(self):
+        tanks_light = self.killboard_pve.get('tank_light', 0)
+        tanks_medium = self.killboard_pve.get('tank_medium', 0)
+        tanks_heavy = self.killboard_pve.get('tank_heavy', 0)
+        return tanks_light + tanks_medium + tanks_heavy
+
     @property
     def modifications(self):
         return get_aircraft_mods(aircraft=self.aircraft.log_name, id_list=tuple(self.weapon_mods_id))
@@ -928,10 +1120,9 @@ class Sortie(models.Model):
     def payload(self):
         return get_aircraft_payload(aircraft=self.aircraft.log_name, payload_id=self.payload_id)
 
-
 class KillboardPvP(models.Model):
-    player_1 = models.ForeignKey(Player, related_name='+', on_delete=models.CASCADE)
-    player_2 = models.ForeignKey(Player, related_name='+', on_delete=models.CASCADE)
+    player_1 = models.ForeignKey(Player, related_name='+')
+    player_2 = models.ForeignKey(Player, related_name='+')
     won_1 = models.IntegerField(default=0)
     won_2 = models.IntegerField(default=0)
     wl_1 = models.FloatField(default=0)
@@ -978,11 +1169,11 @@ class LogEntry(models.Model):
         ('shotdown', 'shotdown'),
     )
 
-    mission = models.ForeignKey(Mission, related_name='+', on_delete=models.CASCADE)
-    act_object = models.ForeignKey(Object, related_name='+', blank=True, null=True, on_delete=models.CASCADE)
-    act_sortie = models.ForeignKey(Sortie, related_name='+', blank=True, null=True, on_delete=models.CASCADE)
-    cact_object = models.ForeignKey(Object, related_name='+', blank=True, null=True, on_delete=models.CASCADE)
-    cact_sortie = models.ForeignKey(Sortie, related_name='+', blank=True, null=True, on_delete=models.CASCADE)
+    mission = models.ForeignKey(Mission, related_name='+')
+    act_object = models.ForeignKey(Object, related_name='+', blank=True, null=True)
+    act_sortie = models.ForeignKey(Sortie, related_name='+', blank=True, null=True)
+    cact_object = models.ForeignKey(Object, related_name='+', blank=True, null=True)
+    cact_sortie = models.ForeignKey(Sortie, related_name='+', blank=True, null=True)
     date = models.DateTimeField()
     tik = models.IntegerField(db_index=True)
     type = models.CharField(max_length=16, choices=TYPES, db_index=True)
@@ -997,8 +1188,8 @@ class LogEntry(models.Model):
 
 
 class Squad(models.Model):
-    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.CASCADE)
-    profile = models.ForeignKey('squads.Squad', related_name='stats', on_delete=models.CASCADE)
+    tour = models.ForeignKey(Tour, related_name='+')
+    profile = models.ForeignKey('squads.Squad', related_name='stats')
 
     num_members = models.PositiveIntegerField(default=0, db_index=True)
     max_members = models.PositiveIntegerField(default=0)
@@ -1155,6 +1346,22 @@ class Squad(models.Model):
         if self.num_members > self.max_members:
             self.max_members = self.num_members
 
+    # Крылья Онлайн: ID награды по функции
+    def get_award_id(self, func):
+        award = Award.objects.get(func=func)
+        return award.id
+
+    # Крылья Онлайн: пилоты сквада
+    def get_players(self):
+        players = (Player.objects.filter(squad_id=self.id, type='pilot'))
+        return players
+
+    # Крылья Онлайн: награждение сквада
+    def reward_squad(self, func):
+        award_id = self.get_award_id(func)
+        for player in self.get_players():
+            Reward.objects.get_or_create(award_id=award_id, player_id=player.id)
+
 
 class Award(models.Model):
     AWARD_TYPES = (
@@ -1179,8 +1386,8 @@ class Award(models.Model):
 
 
 class Reward(models.Model):
-    award = models.ForeignKey(Award, on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    award = models.ForeignKey(Award)
+    player = models.ForeignKey(Player)
     date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1201,7 +1408,7 @@ class PlayerOnline(models.Model):
         (Coalition.Axis, pgettext_lazy('coalition', 'Axis')),
     )
     coalition = models.IntegerField(choices=COALITIONS)
-    profile = models.ForeignKey(Profile, blank=True, null=True, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, blank=True, null=True)
     date = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
@@ -1211,3 +1418,29 @@ class PlayerOnline(models.Model):
 
     def __str__(self):
         return '{nickname} online'.format(nickname=self.nickname)
+
+# Крылья Онлайн: текущая карта
+class CurrentMission(models.Model):
+    name = models.CharField(max_length=128, primary_key=True)
+    duration = models.IntegerField()
+
+    class Meta:
+        db_table = 'current_mission'
+        verbose_name = _('current mission')
+
+    def __str__(self):
+        return '{name}'.format(name=self.name)
+
+# Крылья Онлайн: статистика пользователей
+class ProfileStats(models.Model):
+    profile_id = models.IntegerField()
+    ip = models.CharField(max_length=15, primary_key=True)
+    connection_date = models.DateTimeField()
+    type = models.IntegerField()
+
+    class Meta:
+        db_table = 'profiles_stats'
+        verbose_name = _('profiles_stats')
+
+    def __str__(self):
+        return '{profile_id}'.format(profile_id=self.profile_id)

@@ -2503,39 +2503,42 @@ msgstr ""
 
 #: .\stats\templates\mission.html:124 .\stats\templates\pilots.html:127
 #: .\stats\templates\squads.html:107
-msgid "on the number of air kills"
+msgid "by number of air kills"
 msgstr "Anzahl der Luftsiege"
 
 #: .\stats\templates\mission.html:125 .\stats\templates\pilots.html:128
-msgid "on the current streak of kills"
+msgid "by current streak of kills"
 msgstr "Anzahl der Luftsiege in Folge"
 
 #: .\stats\templates\mission.html:126 .\stats\templates\pilots.html:129
 #: .\stats\templates\squads.html:108
-msgid "on the number of ground kills"
+msgid "by number of ground kills"
 msgstr "Anzahl der Bodenziele"
 
 #: .\stats\templates\mission.html:127 .\stats\templates\pilots.html:130
 #: .\stats\templates\squads.html:109
-msgid "on the flight time (hours:minutes)"
+msgid "by flight time (hours:minutes)"
 msgstr "Flugzeit (Stunden:Minuten)"
 
 #: .\stats\templates\mission.html:128 .\stats\templates\pilots.html:131
 #: .\stats\templates\squads.html:110
-msgid "on the average number of kill per one death (K/D)"
+msgid "by average number of kill per death (K/D)"
 msgstr "Luftsiege pro Tod"
 
 #: .\stats\templates\mission.html:129 .\stats\templates\pilots.html:132
 #: .\stats\templates\squads.html:111
-msgid "on the average number of kill per one hour (K/Hr)"
+msgid "by average number of kill per hour (K/Hr)"
 msgstr "Luftseige pro Stunde"
 
 #: .\stats\templates\mission.html:130 .\stats\templates\pilots.html:133
-msgid "on the accuracy"
+msgid "by accuracy"
 msgstr "Trefferquote"
 
+msgid "by rating"
+msgstr ""
+
 #: .\stats\templates\mission.html:132
-msgid "on the score"
+msgid "by score"
 msgstr "Auswertung"
 
 #: .\stats\templates\missions.html:19
@@ -2626,7 +2629,7 @@ msgid "Flight Time"
 msgstr "Flugzeit"
 
 #: .\stats\templates\pilot.html:103 .\stats\templates\squad.html:76
-msgid "Position in Rating"
+msgid "Ranking"
 msgstr "Position in der Rangliste"
 
 #: .\stats\templates\pilot.html:116 .\stats\templates\squad.html:89
@@ -3651,3 +3654,24 @@ msgstr ""
 
 #~ msgid "Information about the server"
 #~ msgstr "Informationen über den server"
+
+#: .\stats\templates\pilot.html:18
+#: .\stats\templates\pilots.html:75
+msgid "Rank"
+msgstr "Dienstgrad"
+
+#: .\stats\templates\pilots.html:87
+msgid "Hero of the Soviet Union"
+msgstr "Held der Sowjetunion"
+
+#: .\stats\templates\pilots.html:91
+msgid "Knight&#39s Cross"
+msgstr "Ritterkreuz"
+
+#: .\stats\templates\current_mission.html:6
+msgid "current mission"
+msgstr "aktuelle missionen"
+
+#: .\stats\templates\current_mission.html:12
+msgid "duration"
+msgstr "dauer"

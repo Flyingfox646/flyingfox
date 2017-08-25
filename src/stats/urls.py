@@ -20,7 +20,6 @@ from django.views.generic import RedirectView
 from . import views
 
 
-app_name = 'stats'
 urlpatterns = [
     url(r'^pilots/$', views.pilot_rankings, name='pilots'),
     url(r'^squads/$', views.squad_rankings, name='squads'),
@@ -37,6 +36,7 @@ urlpatterns = [
     url(r'^mission/(?P<mission_id>\d+)/$', views.mission, name='mission'),
 
     url(r'^online/$', views.online, name='online'),
+    url(r'^current_mission/$', views.current_mission, name='current_mission'),
     url(r'^$', views.main, name='main'),
 
     # нужно чтобы работали url без имени

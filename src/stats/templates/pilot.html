@@ -20,12 +20,12 @@
                     {% if player.coal_pref == 1 %}
                         <img src="{% static 'img/flag/allies.png' %}" width="140" height="70" class="coal_flag"
                              title="{% trans 'Allies' context 'coalition' %}" alt="{% trans 'Allies' context 'coalition' %}" align="left">
-                        <div class="coalition">{% trans 'favorite coalition' %}: <span>{% trans 'Allies' context 'coalition' %}</span></div>
+                        <div class="aircraft">{% trans 'favorite coalition' %}: <span>{% trans 'Allies' context 'coalition' %}</span></div>
                         {% static 'img/icons/big/streak_allies.png' as streak_img %}
                     {% elif player.coal_pref == 2 %}
                         <img src="{% static 'img/flag/axis.png' %}" width="140" height="70" class="coal_flag"
                              title="{% trans 'Axis' context 'coalition' %}" alt="{% trans 'Axis' context 'coalition' %}" align="left">
-                        <div class="coalition">{% trans 'favorite coalition' %}: <span>{% trans 'Axis' context 'coalition' %}</div>
+                        <div class="aircraft">{% trans 'favorite coalition' %}: <span>{% trans 'Axis' context 'coalition' %}</div>
                         {% static 'img/icons/big/streak_axis.png' as streak_img %}
                     {% else %}
                         <img src="{% static 'img/flag/neutral.png' %}" width="140" height="70" class="coal_flag"
@@ -44,6 +44,11 @@
                     {% endif %}
                 </div>
                 <div class="head_right">
+                    {% if player.get_rank_name %}
+                        <div class="rank">{% trans 'Rank' %}:<img src="{% static 'img/ranks/'|add:player.get_rank_image|add:'.png' %}" height="60"
+                                                                  title="{% trans player.get_rank_name context player.coal_pref %}" align="right"></div>
+                        <div class="rank_desc">{% trans player.get_rank_name context player.coal_pref %}</div>
+                    {% endif %}
                     <div class="streak">{% trans 'Streak' %}: {{ player.streak_current }}</div>
                     <div class="streak_desc">{% trans 'number of downed aircraft for the current virtual life' %}</div>
                     <div class="streak_images">
@@ -99,8 +104,8 @@
                     <div class="num">{{ player.accuracy }}</div>
                 </div>
                 <div class="item">
-                    <img src="{% static 'img/icons/big/rating.png' %}" width="" height="" title="" alt="">
-                    <div class="text">{% trans 'Position in Rating' %}</div>
+                    <img src="{% static 'img/icons/big/rank.png' %}" width="" height="" title="" alt="">
+                    <div class="text">{% trans 'Ranking' %}</div>
                     <div class="num" title="{{ player.rating }}">
                         {% if rating_position %}
                             <a href="{% url 'stats:pilots' %}?page={{ page_position }}&tour={{ player.tour_id }}">{{ rating_position }}</a>
